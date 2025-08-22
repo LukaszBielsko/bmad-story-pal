@@ -1,0 +1,69 @@
+# macOS system files
+.DS_Store
+
+# General dependency directories
+node_modules/
+**/node_modules/
+
+# Package manager lock files (generated locally)
+yarn.lock
+pnpm-lock.yaml
+
+# Build and coverage outputs
+dist/
+build/
+library/
+coverage/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+tmp/
+.temp/
+
+# IDE/editor settings
+.idea/
+.vscode/
+
+# Husky git hooks configuration
+.husky/
+
+# GitHub workflow & configuration files
+.github/
+
+# Claude AI configuration
+.claude/
+
+# BMAD core agents and related generated content
+.bmad-core/
+
+# Expo (React Native) artifacts for the mobile app
+.expo/
+.expo-shared/
+apps/mobile/.expo/
+apps/mobile/.expo-shared/
+
+# Platform-specific build outputs for React Native
+ios/build/
+android/app/build/
+
+# Environment variable files
+.env
+.env.*
+
+# Miscellaneous backups or generated content
+*.bak
+*.orig
+
+

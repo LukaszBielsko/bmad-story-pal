@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "StoryMagic",
+    "slug": "storymagic-dev",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.storymagic.dev"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.storymagic.dev"
+    },
+    "web": {
+      "bundler": "webpack"
+    },
+    "platforms": ["ios", "android", "web"]
+  }
+}
