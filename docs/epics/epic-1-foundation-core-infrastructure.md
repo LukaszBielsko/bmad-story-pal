@@ -20,17 +20,22 @@ so that I can efficiently build and deploy the StoryMagic application.
 ## Story 1.2: Basic Authentication System
 
 As a parent,
-I want to create a secure account for my family,
-so that my child's information and stories are protected.
+I want to access the app securely for demos while having production-ready authentication infrastructure,
+so that I can demonstrate the app immediately and deploy with full security later.
 
 ### Acceptance Criteria
 
-1. Firebase Authentication integrated in React Native app
-2. Sign-up flow with email/password authentication implemented
-3. Sign-in flow with error handling and validation
-4. JWT token management and refresh logic implemented
-5. Protected routes and API endpoints configured
-6. Basic user profile data structure created in PostgreSQL
+**Phase 1 (MVP Demo Mode):**
+1. Firebase Authentication integrated in NestJS backend using Firebase Admin SDK
+2. Environment variable `MOCK_AUTH=true` bypasses authentication validation
+3. Frontend launches directly to main app interface (no login screens)
+4. Protected API endpoints configured with mock authentication bypass
+5. Basic user profile data structure created in PostgreSQL
+
+**Phase 2 (Production Ready - Story 1.6):**
+6. Frontend login/signup screens implementation
+7. JWT token management and refresh logic
+8. Full Firebase Auth flow activation via `MOCK_AUTH=false`
 
 ## Story 1.3: Core Mobile App Shell
 
@@ -73,6 +78,22 @@ so that user data and stories can be managed securely.
 1. NestJS API with TypeScript running on AWS
 2. PostgreSQL database connected and configured
 3. Basic health check endpoint responding correctly
-4. API authentication middleware using Firebase Admin SDK
+4. API authentication middleware using Firebase Admin SDK with environment-based mock mode (`MOCK_AUTH=true` bypasses validation)
 5. CORS configuration for mobile app communication
 6. Basic error handling and logging system implemented
+
+## Story 1.6: Firebase Authentication Activation
+
+As a parent,
+I want to use secure login flows to protect my family's data,
+so that the app is ready for production use with real user accounts.
+
+### Acceptance Criteria
+
+1. React Native Firebase Auth SDK integration completed
+2. Sign-up flow with email/password authentication implemented
+3. Sign-in flow with error handling and validation
+4. JWT token management and refresh logic implemented
+5. Login/logout screens with error handling
+6. Environment variable `MOCK_AUTH=false` activates full authentication
+7. Seamless migration from mock mode to production authentication

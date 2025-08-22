@@ -22,7 +22,7 @@
 - **Frontend:** React Native 0.72+ with TypeScript
 - **Backend:** NestJS with modular architecture
 - **Database:** PostgreSQL (primary) + SQLite (offline)
-- **Authentication:** Firebase Auth
+- **Authentication:** Firebase Auth (environment-configurable with mock mode)
 - **AI:** OpenAI GPT-4 with safety filtering
 - **Infrastructure:** AWS (eu-central-1)
 - **Caching:** Redis for API responses
@@ -52,6 +52,11 @@
 - **Privacy:** Minimal data collection, secure storage
 - **User Rights:** Data export, deletion capabilities
 - **Child Safety:** Age-appropriate content validation
+
+### Dual-Mode Authentication Strategy
+- **Development/Demo Mode:** `MOCK_AUTH=true` - Direct app access, backend auth bypass
+- **Production Mode:** `MOCK_AUTH=false` - Full Firebase authentication flow
+- **Benefits:** Rapid demo capability with zero code waste or technical debt
 
 ## Module Architecture
 
