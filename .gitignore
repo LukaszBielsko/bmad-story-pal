@@ -46,7 +46,7 @@ tmp/
 .claude/
 
 # BMAD core agents and related generated content
-.bmad-core/
+bmad-core/
 
 # Expo (React Native) artifacts for the mobile app
 .expo/
