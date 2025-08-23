@@ -104,8 +104,17 @@ export class UserController {
   
   @Get(':id')
   @ApiResponse({ type: UserDto })
-  async getUser(@Param('id', ParseUUIDPipe) id: string): Promise<UserDto> {
+  async getUser(
+    @Param('id', new ZodValidationPipe(z.string().uuid())) id: string
+  ): Promise<UserDto> {
     return this.userService.findById(id);
+  }
+
+  @Post()
+  async createUser(
+    @Body(new ZodValidationPipe(createUserSchema)) userData: CreateUserRequest
+  ): Promise<UserDto> {
+    return this.userService.create(userData);
   }
 }
 ```

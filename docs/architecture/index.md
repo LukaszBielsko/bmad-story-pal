@@ -37,7 +37,7 @@ This directory contains comprehensive technical specifications for implementing 
 ### ⚙️ [Backend Architecture](./architecture-backend.md)
 - NestJS module structure
 - Service implementations
-- Database integration with TypeORM
+- Database integration with Drizzle ORM
 - OpenAI API integration with safety layers
 - Caching and performance strategies
 - **Updated to use Zod for validation instead of DTO classes**
@@ -156,4 +156,4 @@ This comprehensive technical architecture ensures successful implementation of S
 **Architecture Version:** 1.0  
 **Last Updated:** 2024-08-22  
 **Validation Status:** Ready for Development  
-**Technology Stack:** React Native, NestJS, PostgreSQL, AWS, OpenAI API
+**Technology Stack:** React Native, NestJS, PostgreSQL with Drizzle ORM, Zod Validation, AWS, OpenAI API

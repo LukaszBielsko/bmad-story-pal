@@ -134,7 +134,7 @@ src/
 ### 🔄 Ready for Implementation:
 1. **User Authentication**: Firebase Auth integration structure in place
 2. **Story Generation**: OpenAI API module structure ready
-3. **Database Layer**: TypeORM configuration prepared (currently disabled)
+3. **Database Layer**: Drizzle ORM configuration with Zod validation ready
 4. **Content Safety**: Multi-layer moderation system architecture
 5. **Offline Support**: SQLite and sync service modules prepared
 
@@ -183,7 +183,7 @@ npm run typecheck    # TypeScript validation
 
 ### Immediate Priorities:
 1. **User Authentication**: Implement Firebase Auth integration
-2. **Database Setup**: Enable TypeORM with PostgreSQL
+2. **Database Setup**: Configure Drizzle ORM schemas with PostgreSQL
 3. **Story Generation**: Connect OpenAI API for content creation
 4. **Basic Navigation**: Implement app screen routing
 
@@ -196,7 +196,7 @@ npm run typecheck    # TypeScript validation
 ## Security Considerations Implemented
 
 1. **Type Safety**: Prevents many runtime vulnerabilities
-2. **Input Validation**: DTOs ready for request validation
+2. **Input Validation**: Zod schemas ready for request validation
 3. **Environment Variables**: Secure configuration management
 4. **CORS Configuration**: Proper cross-origin policies
 5. **Error Handling**: Secure error responses without data leaks

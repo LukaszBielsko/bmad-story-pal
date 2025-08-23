@@ -58,7 +58,7 @@ cd backend
 
 # Install core dependencies
 npm install @nestjs/common @nestjs/core @nestjs/platform-express
-npm install @nestjs/typeorm typeorm pg
+npm install drizzle-orm drizzle-kit pg zod
 npm install @nestjs/config @nestjs/jwt
 npm install @nestjs/throttler @nestjs/swagger
 npm install firebase-admin

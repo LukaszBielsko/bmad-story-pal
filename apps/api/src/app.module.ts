@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-// import { TypeOrmModule } from '@nestjs/typeorm';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 // import { ThrottlerModule } from '@nestjs/throttler';
 
 // Configuration imports
@@ -39,26 +40,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
       envFilePath: ['.env.local', '.env'],
     }),
 
-    // Database connection - TODO: Re-enable when needed
-    // TypeOrmModule.forRootAsync({
-    //   imports: [ConfigModule],
-    //   useFactory: (configService: ConfigService) => ({
-    //     type: 'postgres',
-    //     host: configService.get('database.host'),
-    //     port: configService.get('database.port'),
-    //     username: configService.get('database.username'),
-    //     password: configService.get('database.password'),
-    //     database: configService.get('database.name'),
-    //     entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    //     synchronize: configService.get('app.environment') === 'development',
-    //     migrations: [__dirname + '/migrations/*{.ts,.js}'],
-    //     logging: configService.get('app.environment') === 'development',
-    //     ssl: configService.get('app.environment') === 'production' ? {
-    //       rejectUnauthorized: false,
-    //     } : false,
-    //   }),
-    //   inject: [ConfigService],
-    // }),
+    // Drizzle Database Module will be imported via DatabaseModule
 
     // Rate limiting - TODO: Add back when needed
     // ThrottlerModule.forRoot([{
@@ -75,6 +57,21 @@ import { AnalyticsModule } from './analytics/analytics.module';
     AnalyticsModule,
   ],
   providers: [
+    // Database provider for Drizzle ORM
+    {
+      provide: 'DATABASE',
+      useFactory: () => {
+        const pool = new Pool({
+          host: process.env.DATABASE_HOST,
+          port: parseInt(process.env.DATABASE_PORT || '5432'),
+          user: process.env.DATABASE_USERNAME,
+          password: process.env.DATABASE_PASSWORD,
+          database: process.env.DATABASE_NAME,
+          ssl: process.env.NODE_ENV === 'production',
+        });
+        return drizzle(pool);
+      },
+    },
     // {
     //   provide: APP_GUARD,
     //   useClass: FirebaseAuthGuard,

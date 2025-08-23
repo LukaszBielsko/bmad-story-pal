@@ -140,7 +140,7 @@ This approach provides clear separation of concerns while maintaining simplicity
 **Core Technology Stack:**
 - **Frontend:** React Native 0.72+ with TypeScript for cross-platform mobile development
 - **Backend:** Single NestJS application with TypeScript and modular architecture
-- **Database:** PostgreSQL for reliable data storage with JSON support for story content
+- **Database:** PostgreSQL with JSON support via **Drizzle ORM** for type-safe database operations and **Zod** for schema validation
 - **Authentication:** Firebase Auth for secure user management and family account handling
 - **Cloud Infrastructure:** AWS with Polish data residency compliance (eu-central-1 region)
 

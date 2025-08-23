@@ -109,6 +109,28 @@ src/
         └── analytics-event.schemas.ts
 ```
 
+## File Naming Conventions
+
+### Database Schema Files
+- **Format**: `entity-name.table.ts`
+- **Example**: `user.table.ts`, `story.table.ts`
+- **Purpose**: Define database table structure using Drizzle schema
+- **Location**: In the module folder (e.g., `src/user-management/user.table.ts`)
+
+### Validation Schema Files
+- **Format**: `entity-name.schema.ts`
+- **Example**: `user.schema.ts`, `story.schema.ts` 
+- **Purpose**: Define validation rules using Zod schemas
+- **Location**: In the module folder (e.g., `src/user-management/user.schema.ts`)
+
+### Service Files
+- **Format**: `entity-name.service.ts`
+- **Example**: `user.service.ts`, `story-generation.service.ts`
+
+### Controller Files
+- **Format**: `entity-name.controller.ts`
+- **Example**: `user.controller.ts`, `stories.controller.ts`
+
 ## Zod Validation Integration
 
 ### Zod Schema Setup
@@ -267,8 +289,9 @@ export class StoryGenerationService {
     private contentSafetyService: ContentSafetyService,
     private promptBuilderService: PromptBuilderService,
     private preGeneratedStoriesService: PreGeneratedStoriesService,
-    @InjectRepository(StoryRequest)
-    private storyRequestRepository: Repository<StoryRequest>,
+    @Inject('DATABASE')
+    private database: Database,
+    private storyRequestService: StoryRequestService,
   ) {}
 
   async generateStory(request: GenerateStoryDto, userId: string): Promise<Story> {
@@ -418,106 +441,71 @@ export class PromptBuilderService {
 
 ## Database Integration
 
-### TypeORM Configuration
+### Drizzle ORM Configuration
 ```typescript
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as schema from '../database/schema';
+
 @Module({
-  imports: [
-    TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-        type: 'postgres',
-        host: process.env.DATABASE_HOST,
-        port: parseInt(process.env.DATABASE_PORT),
-        username: process.env.DATABASE_USERNAME,
-        password: process.env.DATABASE_PASSWORD,
-        database: process.env.DATABASE_NAME,
-        entities: [User, ChildProfile, Story, UserStory, StoryRequest],
-        synchronize: process.env.NODE_ENV === 'development',
-        ssl: process.env.NODE_ENV === 'production',
-        logging: process.env.NODE_ENV === 'development',
-      }),
-    }),
-    TypeOrmModule.forFeature([User, ChildProfile, Story, UserStory, StoryRequest]),
+  providers: [
+    {
+      provide: 'DATABASE',
+      useFactory: () => {
+        const pool = new Pool({
+          host: process.env.DATABASE_HOST,
+          port: parseInt(process.env.DATABASE_PORT),
+          user: process.env.DATABASE_USERNAME,
+          password: process.env.DATABASE_PASSWORD,
+          database: process.env.DATABASE_NAME,
+          ssl: process.env.NODE_ENV === 'production',
+        });
+        return drizzle(pool, { schema });
+      },
+    },
   ],
+  exports: ['DATABASE'],
 })
 export class DatabaseModule {}
 ```
 
-### Entity Definitions
+### Drizzle Schema Definitions
 ```typescript
-@Entity('users')
-export class User {
-  @PrimaryColumn()
-  id: string; // Firebase UID
+// user-management/user.table.ts
+import { pgTable, text, timestamp, jsonb, uuid } from 'drizzle-orm/pg-core';
 
-  @Column({ unique: true })
-  email: string;
+export const users = pgTable('users', {
+  id: text('id').primaryKey(), // Firebase UID
+  email: text('email').unique().notNull(),
+  displayName: text('display_name'),
+  preferences: jsonb('preferences').default({}),
+  subscriptionStatus: text('subscription_status').default('free'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
 
-  @Column({ name: 'display_name', nullable: true })
-  displayName?: string;
+// story-storage/story.table.ts
+export const stories = pgTable('stories', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  theme: text('theme').notNull(),
+  ageGroup: text('age_group').notNull(),
+  language: text('language').default('pl'),
+  type: text('type').$type<'generated' | 'pre_written'>().notNull(),
+  wordCount: text('word_count'),
+  readingTimeMinutes: text('reading_time_minutes'),
+  safetyStatus: text('safety_status').default('approved'),
+  safetyMetadata: jsonb('safety_metadata').default({}),
+  personalizationData: jsonb('personalization_data').default({}),
+  createdAt: timestamp('created_at').defaultNow(),
+});
 
-  @Column({ type: 'jsonb', default: {} })
-  preferences: Record<string, any>;
-
-  @Column({ name: 'subscription_status', default: 'free' })
-  subscriptionStatus: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
-
-  @OneToMany(() => ChildProfile, profile => profile.user)
-  childProfiles: ChildProfile[];
-
-  @OneToMany(() => UserStory, userStory => userStory.user)
-  savedStories: UserStory[];
-}
-
-@Entity('stories')
-export class Story {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column({ length: 200 })
-  title: string;
-
-  @Column('text')
-  content: string;
-
-  @Column({ length: 50 })
-  theme: string;
-
-  @Column({ name: 'age_group', length: 10 })
-  ageGroup: string;
-
-  @Column({ length: 5, default: 'pl' })
-  language: string;
-
-  @Column({ length: 20 })
-  type: 'generated' | 'pre_written';
-
-  @Column({ name: 'word_count', nullable: true })
-  wordCount?: number;
-
-  @Column({ name: 'reading_time_minutes', nullable: true })
-  readingTimeMinutes?: number;
-
-  @Column({ name: 'safety_status', default: 'approved' })
-  safetyStatus: string;
-
-  @Column({ name: 'safety_metadata', type: 'jsonb', default: {} })
-  safetyMetadata: Record<string, any>;
-
-  @Column({ name: 'personalization_data', type: 'jsonb', default: {} })
-  personalizationData: Record<string, any>;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @OneToMany(() => UserStory, userStory => userStory.story)
-  userStories: UserStory[];
-}
+// Export types for use throughout the application
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Story = typeof stories.$inferSelect;
+export type NewStory = typeof stories.$inferInsert;
 ```
 
 ## Authentication & Authorization
@@ -648,7 +636,7 @@ export class CacheService {
 export class HealthController {
   constructor(
     private health: HealthCheckService,
-    private db: TypeOrmHealthIndicator,
+    @Inject('DATABASE') private database: Database,
     private http: HttpHealthIndicator,
   ) {}
 
@@ -656,11 +644,20 @@ export class HealthController {
   @HealthCheck()
   check() {
     return this.health.check([
-      () => this.db.pingCheck('database'),
+      () => this.checkDrizzleConnection(),
       () => this.http.pingCheck('openai', 'https://api.openai.com/v1/models'),
       () => this.checkRedisConnection(),
       () => this.checkFirebaseConnection(),
     ]);
+  }
+
+  private async checkDrizzleConnection(): Promise<HealthIndicatorResult> {
+    try {
+      await this.database.select().from(users).limit(1);
+      return { database: { status: 'up' } };
+    } catch (error) {
+      return { database: { status: 'down', error: error.message } };
+    }
   }
 
   private async checkRedisConnection(): Promise<HealthIndicatorResult> {
