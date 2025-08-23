@@ -140,7 +140,7 @@ This approach provides clear separation of concerns while maintaining simplicity
 **Core Technology Stack:**
 - **Frontend:** React Native 0.72+ with TypeScript for cross-platform mobile development
 - **Backend:** Single NestJS application with TypeScript and modular architecture
-- **Database:** PostgreSQL with JSON support via **Drizzle ORM** for type-safe database operations and **Zod** for schema validation
+- **Database:** PostgreSQL with **Drizzle ORM** for type-safe database operations, simplified MVP architecture with global database module and basic health monitoring via @nestjs/terminus
 - **Authentication:** Firebase Auth for secure user management and family account handling
 - **Cloud Infrastructure:** AWS with Polish data residency compliance (eu-central-1 region)
 
@@ -254,7 +254,7 @@ so that user data and stories can be managed securely.
 #### Acceptance Criteria
 
 1. NestJS API with TypeScript running on AWS
-2. PostgreSQL database connected and configured
+2. PostgreSQL database connected with Drizzle ORM and health monitoring configured
 3. Basic health check endpoint responding correctly
 4. API authentication middleware using Firebase Admin SDK with environment-based mock mode (`MOCK_AUTH=true` bypasses validation)
 5. CORS configuration for mobile app communication
@@ -554,4 +554,4 @@ so that the library stays organized and within storage limits.
 Review this PRD and create detailed wireframes and user flows for the three-step story creation process, focusing on the "Evening Sanctuary Design" principle for cognitively depleted parents.
 
 ### Architect Prompt
-Design the technical architecture for StoryMagic based on this PRD. Focus on the monolithic NestJS backend with modular structure, React Native frontend, and robust content safety systems. Prioritize the 30-second story generation requirement and offline functionality.
+Design the technical architecture for StoryMagic based on this PRD. Focus on the simplified MVP NestJS backend with Drizzle ORM, global database module, and basic health monitoring. Implement modular structure with co-located table definitions, React Native frontend, and robust content safety systems. Prioritize the 30-second story generation requirement and offline functionality.

@@ -64,7 +64,8 @@ npm install @nestjs/throttler @nestjs/swagger
 npm install firebase-admin
 npm install openai
 npm install redis ioredis
-npm install class-validator class-transformer
+# Note: Using Zod for validation instead of class-validator
+npm install @types/pg
 
 # Install development dependencies
 npm install -D @types/node typescript ts-node
@@ -501,6 +502,18 @@ docs: update API documentation for story endpoints
 4. Create PR with detailed description
 5. Code review and approval required
 6. Squash and merge to main
+```
+
+### Database Management
+```bash
+# Drizzle ORM Commands
+npm run db:generate   # Generate migration files from schema changes
+npm run db:migrate    # Apply migrations to database  
+npm run db:studio     # Open Drizzle Studio for database inspection
+
+# Development Database Setup
+npm run dev:db:reset  # Reset development database
+npm run dev:db:seed   # Seed database with test data
 ```
 
 ### Testing Strategy

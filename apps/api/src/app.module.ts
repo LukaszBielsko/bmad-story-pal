@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
 // import { ThrottlerModule } from '@nestjs/throttler';
 
 // Configuration imports
@@ -17,6 +15,8 @@ import { appConfig } from './config/app.config';
 
 // Module imports
 import { AppController } from './app.controller';
+import { DatabaseModule } from './database/database.module';
+import { HealthModule } from './health/health.module';
 import { UserManagementModule } from './user-management/user-management.module';
 import { StoryGenerationModule } from './story-generation/story-generation.module';
 import { ContentSafetyModule } from './content-safety/content-safety.module';
@@ -40,7 +40,9 @@ import { AnalyticsModule } from './analytics/analytics.module';
       envFilePath: ['.env.local', '.env'],
     }),
 
-    // Drizzle Database Module will be imported via DatabaseModule
+    // Database and health monitoring
+    DatabaseModule,
+    HealthModule,
 
     // Rate limiting - TODO: Add back when needed
     // ThrottlerModule.forRoot([{
@@ -57,21 +59,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     AnalyticsModule,
   ],
   providers: [
-    // Database provider for Drizzle ORM
-    {
-      provide: 'DATABASE',
-      useFactory: () => {
-        const pool = new Pool({
-          host: process.env.DATABASE_HOST,
-          port: parseInt(process.env.DATABASE_PORT || '5432'),
-          user: process.env.DATABASE_USERNAME,
-          password: process.env.DATABASE_PASSWORD,
-          database: process.env.DATABASE_NAME,
-          ssl: process.env.NODE_ENV === 'production',
-        });
-        return drizzle(pool);
-      },
-    },
+    // Guards will be added back when needed
     // {
     //   provide: APP_GUARD,
     //   useClass: FirebaseAuthGuard,
@@ -82,4 +70,4 @@ import { AnalyticsModule } from './analytics/analytics.module';
     // },
   ],
 })
-export class AppModule {}
+export class AppModule { }

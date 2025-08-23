@@ -88,33 +88,38 @@ const styles = StyleSheet.create({
 ### Module Organization
 ```typescript
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
-  controllers: [UserController],
-  providers: [UserService, UserRepository],
-  exports: [UserService],
+  controllers: [UsersController],
+  providers: [UsersService, FirebaseService, FirebaseAuthGuard],
+  exports: [UsersService, FirebaseService, FirebaseAuthGuard],
 })
-export class UserModule {}
+export class UserManagementModule {}
 ```
 
 ### Controller Layer
 ```typescript
 @Controller('users')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
   
   @Get(':id')
-  @ApiResponse({ type: UserDto })
-  async getUser(
-    @Param('id', new ZodValidationPipe(z.string().uuid())) id: string
-  ): Promise<UserDto> {
-    return this.userService.findById(id);
+  @UseGuards(FirebaseAuthGuard)
+  @ApiResponse({ status: HttpStatus.OK, description: 'User retrieved successfully' })
+  async getUserById(
+    @Param(new ZodValidationPipe(userIdParamSchema)) params: UserIdParamRequest,
+  ): Promise<User> {
+    const user = await this.usersService.getUserById(params.id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${params.id} not found`);
+    }
+    return user;
   }
 
   @Post()
+  @UseGuards(FirebaseAuthGuard)
   async createUser(
-    @Body(new ZodValidationPipe(createUserSchema)) userData: CreateUserRequest
-  ): Promise<UserDto> {
-    return this.userService.create(userData);
+    @Body(new ZodValidationPipe(createUserSchema)) createUserData: CreateUserRequest,
+  ): Promise<User> {
+    return this.usersService.createUser(createUserData);
   }
 }
 ```
@@ -125,45 +130,247 @@ export class UserController {
 - **Error Handling**: Throw specific exceptions (`NotFoundException`)
 - **Business Logic**: Keep in services, not controllers
 
-### Repository Pattern
+### Service Pattern with Drizzle ORM
 ```typescript
 @Injectable()
-export class UserRepository {
+export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
-    @InjectRepository(User)
-    private readonly repository: Repository<User>,
+    @Inject('DATABASE') private db: NodePgDatabase,
   ) {}
   
-  async findById(id: string): Promise<User | null> {
-    return this.repository.findOne({ where: { id } });
+  async getUserById(id: string): Promise<User | null> {
+    try {
+      const [user] = await this.db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+        .limit(1);
+
+      return user || null;
+    } catch (error) {
+      this.logger.error(`Failed to get user ${id}: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async createUser(userData: CreateUserRequest): Promise<User> {
+    try {
+      const [createdUser] = await this.db
+        .insert(users)
+        .values(userData)
+        .returning();
+
+      this.logger.log(`Created user: ${createdUser.id}`);
+      return createdUser;
+    } catch (error) {
+      this.logger.error(`Failed to create user: ${error.message}`);
+      throw error;
+    }
   }
 }
 ```
 
 ## Database Standards
 
-### Entity Definitions
+### Drizzle ORM Architecture
+
+#### Database Module Pattern
 ```typescript
-@Entity('users')
-export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+// src/database/database.module.ts
+import { Module, Global } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import * as schema from './schema';
+
+@Global()
+@Module({
+  providers: [
+    {
+      provide: 'DATABASE',
+      useFactory: async (configService: ConfigService) => {
+        const pool = new Pool({
+          connectionString: configService.get('DATABASE_URL'),
+        });
+        return drizzle(pool, { schema });
+      },
+      inject: [ConfigService],
+    },
+  ],
+  exports: ['DATABASE'],
+})
+export class DatabaseModule {}
+```
+
+#### Service Integration Pattern
+```typescript
+@Injectable()
+export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
+  constructor(
+    @Inject('DATABASE') private db: NodePgDatabase<typeof schema>,
+  ) {}
   
-  @Column({ length: 255 })
-  email: string;
-  
-  @CreateDateColumn()
-  createdAt: Date;
-  
-  @UpdateDateColumn()
-  updatedAt: Date;
+  async getUserById(id: string): Promise<User | null> {
+    try {
+      const [user] = await this.db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+        .limit(1);
+
+      return user || null;
+    } catch (error) {
+      this.logger.error(`Failed to get user ${id}: ${error.message}`);
+      throw error;
+    }
+  }
 }
 ```
 
+### Drizzle config
+
+#### Drizzle config file
+```typescript
+import { defineConfig } from 'drizzle-kit';
+import { registerAs } from '@nestjs/config';
+
+// 1) Configuration for the Drizzle CLI/code-gen
+export const drizzleDatabaseConfig = defineConfig({
+  schema: './src/**/*.table.ts',
+  out: './drizzle/migrations',
+  driver: 'pg',
+  dbCredentials: {
+    connectionString: process.env.DATABASE_URL as string,
+  },
+  verbose: true,
+  strict: true,
+});
+
+// 2) Configuration factory consumed by NestJS ConfigModule
+export const databaseConfig = registerAs('database', () => ({
+  url: process.env.DATABASE_URL,
+}));
+
+```
+
+#### Drizzle config file location
+apps/api/src/config/database.config.ts
+
+### Drizzle Schema Definitions
+
+#### Table Definition Standards
+```typescript
+// user-management/user.table.ts
+import { pgTable, varchar, timestamp, json, boolean } from 'drizzle-orm/pg-core';
+import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
+
+export const users = pgTable('users', {
+  // Firebase UID as primary key
+  id: varchar('id', { length: 128 }).primaryKey(),
+  
+  // Basic user information
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  displayName: varchar('display_name', { length: 255 }),
+  
+  // User preferences as JSON
+  preferences: json('preferences').$type<{
+    theme?: 'light' | 'dark';
+    language?: string;
+  }>(),
+  
+  // Account status
+  isActive: boolean('is_active').default(true).notNull(),
+  
+  // Audit timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Export types
+export type User = InferSelectModel<typeof users>;
+export type NewUser = InferInsertModel<typeof users>;
+```
+
+#### Schema Organization
+- **Co-location**: Table definitions live with their feature modules (`*.table.ts`)
+- **Centralized Export**: All schemas exported from `src/database/schema/index.ts`
+- **Relations**: Defined separately in `src/database/relations.ts` to avoid circular imports
+
+```typescript
+// src/database/schema/index.ts
+export * from '../../user-management/user.table';
+export * from '../../story-generation/story.table';
+export * from '../../story-generation/character.table';
+```
+
+#### Naming Conventions
+- **Tables**: Snake_case (`user_stories`, `story_characters`)
+- **Columns**: Snake_case (`created_at`, `display_name`)
+- **Primary Keys**: `id` for single column, descriptive for composite
+- **Foreign Keys**: `{table_name}_id` format (`user_id`, `story_id`)
+- **Junction Tables**: `{table1}_{table2}` (`user_stories`, `story_characters`)
+
+### Query Patterns
+
+#### Standard CRUD Operations
+```typescript
+// Create
+const [newUser] = await db.insert(users).values(userData).returning();
+
+// Read single
+const user = await db.query.users.findFirst({
+  where: eq(users.id, userId),
+});
+
+// Read with relations
+const userWithStories = await db.query.users.findFirst({
+  where: eq(users.id, userId),
+  with: {
+    stories: true,
+  },
+});
+
+// Update
+await db
+  .update(users)
+  .set({ updatedAt: new Date() })
+  .where(eq(users.id, userId));
+
+// Delete
+await db.delete(users).where(eq(users.id, userId));
+```
+
+#### Transaction Patterns
+```typescript
+await db.transaction(async (tx) => {
+  const [user] = await tx.insert(users).values(userData).returning();
+  await tx.insert(profiles).values({ userId: user.id, ...profileData });
+});
+```
+
 ### Migration Guidelines
-- **Descriptive Names**: `CreateUserTable`, `AddEmailIndexToUsers`
-- **Reversible**: Always implement both `up` and `down`
-- **Data Migration**: Separate from schema changes
+- **File Naming**: Use drizzle-kit generated timestamps
+- **Schema Generation**: `npm run db:generate` for migration creation
+- **Migration Deployment**: `npm run db:migrate` for applying changes
+- **Schema Export**: Always export new tables from schema/index.ts
+- **Relations Update**: Update relations.ts when adding foreign keys
+
+#### Migration Workflow
+```bash
+# 1. Modify schema files
+# 2. Generate migration
+npm run db:generate
+
+# 3. Review generated SQL
+cat drizzle/migrations/[timestamp]_*.sql
+
+# 4. Apply migration
+npm run db:migrate
+```
 
 ## Error Handling
 
@@ -199,16 +406,31 @@ export class ConfigService {
 }
 ```
 
-### Input Validation
+### Input Validation with Zod
 ```typescript
-// Use DTOs with class-validator
-export class CreateUserDto {
-  @IsEmail()
-  email: string;
-  
-  @MinLength(8)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-  password: string;
+// user-management/user.schema.ts
+import { z } from 'zod';
+
+// Schema for creating a new user
+export const createUserSchema = z.object({
+  id: z.string().min(1).max(128), // Firebase UID
+  email: z.string().email('Invalid email format').max(255),
+  displayName: z.string().min(1).max(255).optional(),
+  preferences: z.object({
+    theme: z.enum(['light', 'dark']).optional(),
+    language: z.string().min(2).max(10).optional(),
+  }).optional(),
+});
+
+// Export inferred types
+export type CreateUserRequest = z.infer<typeof createUserSchema>;
+
+// ZodValidationPipe usage in controllers
+@Post()
+async createUser(
+  @Body(new ZodValidationPipe(createUserSchema)) userData: CreateUserRequest,
+): Promise<User> {
+  return this.usersService.createUser(userData);
 }
 ```
 

@@ -174,8 +174,17 @@ mobile/src/
 src/
 ├── app.module.ts                    # Root application module
 ├── main.ts                         # Application bootstrap
+├── database/                       # Database module and configuration
+│   ├── database.module.ts          # Global Drizzle ORM module
+│   ├── relations.ts               # Database relations
+│   └── schema/
+│       └── index.ts               # Schema aggregator
+├── health/                         # Health monitoring module
+│   ├── health.module.ts
+│   ├── health.controller.ts        # Health check endpoints
+│   └── database-health.indicator.ts # Database connectivity check
 ├── config/
-│   ├── database.config.ts          # PostgreSQL configuration
+│   ├── database.config.ts          # Drizzle config
 │   ├── firebase.config.ts          # Firebase Auth setup
 │   ├── openai.config.ts           # OpenAI API configuration
 │   ├── redis.config.ts            # Redis caching setup
@@ -209,9 +218,8 @@ src/
 │   ├── services/
 │   │   ├── users.service.ts
 │   │   └── child-profiles.service.ts
-│   ├── entities/
-│   │   ├── user.entity.ts
-│   │   └── child-profile.entity.ts
+│   ├── user.table.ts               # Drizzle table definition
+│   ├── child-profile.table.ts      # Drizzle table definition
 │   └── schemas/
 │       ├── user.schemas.ts
 │       └── child-profile.schemas.ts
@@ -224,8 +232,7 @@ src/
 │   │   ├── openai.service.ts
 │   │   ├── prompt-builder.service.ts
 │   │   └── story-request-tracker.service.ts
-│   ├── entities/
-│   │   └── story-request.entity.ts
+│   ├── story-request.table.ts       # Drizzle table definition
 │   └── schemas/
 │       ├── generate-story.schemas.ts
 │       └── story-generation.schemas.ts
@@ -236,8 +243,7 @@ src/
 │   │   ├── openai-moderation.service.ts
 │   │   ├── custom-safety-filters.service.ts
 │   │   └── safety-logger.service.ts
-│   ├── entities/
-│   │   └── safety-violation.entity.ts
+│   ├── safety-violation.table.ts    # Drizzle table definition
 │   └── schemas/
 │       ├── moderation.schemas.ts
 │       └── safety-result.schemas.ts
@@ -250,9 +256,8 @@ src/
 │   │   ├── stories.service.ts
 │   │   ├── user-stories.service.ts
 │   │   └── pre-generated-stories.service.ts
-│   ├── entities/
-│   │   ├── story.entity.ts
-│   │   └── user-story.entity.ts
+│   ├── story.table.ts               # Drizzle table definition
+│   ├── user-story.table.ts          # Drizzle table definition
 │   └── schemas/
 │       ├── story.schemas.ts
 │       └── user-story.schemas.ts
@@ -372,6 +377,7 @@ tools/
 "@/shared/*": ["src/shared/*"]
 "@/config/*": ["src/config/*"]
 "@/database/*": ["src/database/*"]
+"@/health/*": ["src/health/*"]
 ```
 
 ### Shared Packages

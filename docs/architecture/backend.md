@@ -41,12 +41,9 @@ src/
 │   ├── services/
 │   │   ├── users.service.ts
 │   │   └── child-profiles.service.ts
-│   ├── entities/
-│   │   ├── user.entity.ts
-│   │   └── child-profile.entity.ts
-│   └── schemas/
-│       ├── user.schemas.ts
-│       └── child-profile.schemas.ts
+│   ├── user.table.ts              # Drizzle database schema
+│   ├── user.schema.ts             # Zod validation schemas
+│   └── child-profile.table.ts     # Child profile database schema
 ├── story-generation/               # OpenAI integration & generation
 │   ├── story-generation.module.ts
 │   ├── controllers/
@@ -472,17 +469,47 @@ export class DatabaseModule {}
 ### Drizzle Schema Definitions
 ```typescript
 // user-management/user.table.ts
-import { pgTable, text, timestamp, jsonb, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, varchar, text, timestamp, json, boolean } from 'drizzle-orm/pg-core';
+import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
 
 export const users = pgTable('users', {
-  id: text('id').primaryKey(), // Firebase UID
-  email: text('email').unique().notNull(),
-  displayName: text('display_name'),
-  preferences: jsonb('preferences').default({}),
-  subscriptionStatus: text('subscription_status').default('free'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  // Firebase UID as primary key - unique identifier from Firebase Auth
+  id: varchar('id', { length: 128 }).primaryKey(),
+  
+  // Basic user information from Firebase Auth
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  displayName: varchar('display_name', { length: 255 }),
+  
+  // User preferences stored as JSON for flexibility
+  preferences: json('preferences').$type<{
+    theme?: 'light' | 'dark';
+    language?: string;
+    notifications?: {
+      email?: boolean;
+      push?: boolean;
+    };
+    storyPreferences?: {
+      defaultThemes?: string[];
+      contentFilters?: string[];
+    };
+  }>(),
+  
+  // Subscription status for premium features
+  subscriptionStatus: varchar('subscription_status', { length: 50 }).default('free').notNull(),
+  subscriptionExpiresAt: timestamp('subscription_expires_at'),
+  
+  // Account status and metadata
+  isActive: boolean('is_active').default(true).notNull(),
+  lastLoginAt: timestamp('last_login_at'),
+  
+  // Audit timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+// Export types for use throughout the application
+export type User = InferSelectModel<typeof users>;
+export type NewUser = InferInsertModel<typeof users>;
 
 // story-storage/story.table.ts
 export const stories = pgTable('stories', {
@@ -510,36 +537,64 @@ export type NewStory = typeof stories.$inferInsert;
 
 ## Authentication & Authorization
 
-### Firebase Auth Guard
+### Firebase Auth Guard with Mock Bypass
 ```typescript
 @Injectable()
 export class FirebaseAuthGuard implements CanActivate {
-  constructor(private firebaseService: FirebaseService) {}
+  private readonly logger = new Logger(FirebaseAuthGuard.name);
+
+  constructor(
+    private firebaseService: FirebaseService,
+    private configService: ConfigService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
-
-    if (!token) {
-      throw new UnauthorizedException('No authentication token provided');
+    
+    // Check if mock authentication is enabled
+    const mockAuth = this.configService.get<string>('MOCK_AUTH') === 'true';
+    
+    if (mockAuth) {
+      // Mock authentication mode - bypass Firebase validation
+      const mockUser = this.firebaseService.createMockUser();
+      request.user = mockUser;
+      
+      this.logger.debug('Mock authentication bypassed - demo mode active');
+      return true;
     }
 
+    // Production authentication mode - validate Firebase token
     try {
-      const decodedToken = await this.firebaseService.verifyIdToken(token);
-      request.user = {
-        uid: decodedToken.uid,
-        email: decodedToken.email,
-        emailVerified: decodedToken.email_verified,
-      };
+      const authHeader = request.headers.authorization;
+      
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new UnauthorizedException('No valid authorization header found');
+      }
+
+      const idToken = authHeader.substring(7); // Remove 'Bearer ' prefix
+      
+      if (!idToken) {
+        throw new UnauthorizedException('No token provided');
+      }
+
+      // Verify the Firebase ID token
+      const decodedToken = await this.firebaseService.verifyIdToken(idToken);
+      
+      // Attach user info to request for use in controllers/services
+      request.user = decodedToken;
+      
+      this.logger.debug(`User authenticated: ${decodedToken.uid}`);
+      
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Invalid authentication token');
+      this.logger.warn('Authentication failed:', error.message);
+      
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      
+      throw new UnauthorizedException('Authentication failed');
     }
-  }
-
-  private extractTokenFromHeader(request: any): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }
 ```
