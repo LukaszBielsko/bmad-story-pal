@@ -1,13 +1,14 @@
+import 'dotenv/config';
 import { defineConfig } from 'drizzle-kit';
 import { registerAs } from '@nestjs/config';
 
 // 1) Configuration for the Drizzle CLI/code-gen
-export const drizzleDatabaseConfig = defineConfig({
+export default defineConfig({
   schema: './src/**/*.table.ts',
   out: './drizzle/migrations',
-  driver: 'pg',
+  dialect: 'postgresql',
   dbCredentials: {
-    connectionString: process.env.DATABASE_URL as string,
+    url: process.env.DATABASE_URL as string,
   },
   verbose: true,
   strict: true,

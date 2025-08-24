@@ -361,6 +361,7 @@ await db.transaction(async (tx) => {
 
 #### Migration Workflow
 ##### 1. Modify schema files with bash
+** comands run from the /apps/api folder **
 ```bash
 # 1. Modify schema files
 # 2. Generate migration
