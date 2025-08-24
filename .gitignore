@@ -6,7 +6,7 @@ node_modules/
 **/node_modules/
 
 # Package manager lock files (generated locally)
-yarn.lock
+yarn.lockDone
 pnpm-lock.yaml
 
 # Build and coverage outputs
@@ -46,7 +46,7 @@ tmp/
 .claude/
 
 # BMAD core agents and related generated content
-bmad-core/
+.bmad-core/
 
 # Expo (React Native) artifacts for the mobile app
 .expo/
