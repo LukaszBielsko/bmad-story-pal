@@ -176,6 +176,9 @@ This approach provides clear separation of concerns while maintaining simplicity
 **Epic 4: Story Management & Persistence**
 *Enable story saving, favorites, offline access, and story library management for repeated enjoyment*
 
+**Epic 5: Production Infrastructure & Deployment**
+*Deploy validated MVP to production AWS infrastructure with full monitoring, security, and scalability features*
+
 ## Epic 1: Foundation & Core Infrastructure
 
 **Epic Goal:** Establish solid technical foundation for StoryMagic while delivering immediate value through basic story reading functionality. This epic ensures parents can access and read stories from day one, even before AI generation capabilities are complete.

@@ -74,11 +74,13 @@
 
 ## Development Timeline
 
-### 16-Week Implementation Plan
-- **Month 1:** Epic 1 - Foundation & Core Infrastructure
+### 12-Week MVP + 4-Week Deployment Plan
+- **Month 1:** Epic 1 - Foundation (Local Development Focus)
 - **Month 2:** Epic 2 - Story Generation & Safety
 - **Month 3:** Epic 3 - Personalization & User Experience
 - **Month 4:** Epic 4 - Story Management & Persistence
+- **MVP VALIDATION PERIOD** (2-4 weeks user testing)
+- **Month 5:** Epic 5 - Production Infrastructure & Deployment
 
 ## Related Documentation
 - [Database Schema](./architecture-database.md)
