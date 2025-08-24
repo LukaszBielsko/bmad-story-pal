@@ -46,7 +46,7 @@ tmp/
 .claude/
 
 # BMAD core agents and related generated content
-.bmad-core/
+bmad-core/
 
 # Expo (React Native) artifacts for the mobile app
 .expo/
@@ -59,6 +59,7 @@ ios/build/
 android/app/build/
 
 # Environment variable files
+apps/api/.env
 .env
 .env.*
 

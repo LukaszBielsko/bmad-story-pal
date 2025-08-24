@@ -360,6 +360,7 @@ await db.transaction(async (tx) => {
 - **Relations Update**: Update relations.ts when adding foreign keys
 
 #### Migration Workflow
+##### 1. Modify schema files with bash
 ```bash
 # 1. Modify schema files
 # 2. Generate migration
@@ -371,6 +372,10 @@ cat drizzle/migrations/[timestamp]_*.sql
 # 4. Apply migration
 npm run db:migrate
 ```
+IMPORTANT: DO NOT RUN MIGRATIONS WITH NEON MCP, USE DRIZZLE-KIT CLI INSTEAD !!!! ALWAYS!!! DO NOT USE NEON MCP TO RUN MIGRATIONS!!!
+DO NOT USE PSQL TO RUN MIGRATIONS!!!
+
+##### 2. Check the migration using neon mcp
 
 ## Error Handling
 
@@ -449,7 +454,7 @@ src/
 │   ├── user/
 │   ├── story/
 │   └── auth/
-├── shared/           # Shared utilities
+├── common/           # Shared utilities
 │   ├── decorators/
 │   ├── guards/
 │   └── pipes/
@@ -468,11 +473,11 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { UserService } from '@/modules/user';
-import { ApiClient } from '@/shared/api';
+import { ApiClient } from '@/common/api';
 
 import './styles.css';
 
-import type { User } from './types';
+import type { User } from '@/common/types';
 ```
 
 ## Testing Standards
@@ -484,10 +489,11 @@ describe('UserService', () => {
   
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      providers: [UserService],
+      providers: [UserService, DatabaseModule],
     }).compile();
     
     service = module.get<UserService>(UserService);
+    db = module.get<NodePgDatabase<typeof schema>>(DatabaseModule);
   });
   
   it('should create a user', async () => {
