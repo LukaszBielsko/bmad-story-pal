@@ -98,7 +98,9 @@ cd ios && pod install && cd ..
 npm install -D @types/react @types/react-native
 npm install -D eslint @typescript-eslint/eslint-plugin
 npm install -D prettier eslint-config-prettier
-npm install -D detox jest
+
+# Testing dependencies (deferred to post-MVP)
+# npm install -D detox jest
 ```
 
 ### Local Development Infrastructure
@@ -246,7 +248,7 @@ LOG_LEVEL=debug
 □ Implement story navigation and progress tracking
 □ Add story selection and display screens
 □ Create offline storage with SQLite
-□ Test story reading flow end-to-end
+□ Manual testing of story reading flow end-to-end
 ```
 
 ### Phase 2: Story Generation & Safety (Weeks 5-8) - Epic 2
@@ -261,9 +263,9 @@ LOG_LEVEL=debug
 □ Implement API usage monitoring and cost tracking
 □ Add generation retry logic with exponential backoff
 
-# Testing Tasks
+# Backend Testing Tasks
 □ Create unit tests for generation service
-□ Test generation with different prompts
+□ Test generation API endpoints
 □ Validate generation performance and reliability
 □ Test timeout and error scenarios
 ```
@@ -278,9 +280,9 @@ LOG_LEVEL=debug
 □ Create content safety middleware
 □ Add fallback to pre-approved stories
 
-# Safety Tasks
+# Backend Safety Testing Tasks
 □ Define comprehensive safety test cases
-□ Test edge cases and boundary conditions
+□ Test edge cases and boundary conditions in API
 □ Validate safety filter effectiveness
 □ Create safety monitoring dashboard
 ```
@@ -297,8 +299,8 @@ LOG_LEVEL=debug
 # Content Tasks
 □ Research Polish children's story themes
 □ Create culturally appropriate story elements
-□ Test story quality across different ages
-□ Validate story length and complexity
+□ Manual validation of story quality across different ages
+□ Manual validation of story length and complexity
 ```
 
 #### Week 8: API Integration & Performance
@@ -310,11 +312,11 @@ LOG_LEVEL=debug
 □ Optimize generation performance
 □ Implement response caching with Redis
 
-# Testing Tasks
-□ End-to-end API testing
+# Backend Testing Tasks
+□ Backend API end-to-end testing
 □ Load testing for concurrent generations
 □ Performance optimization and monitoring
-□ Integration testing with mobile app
+□ Manual integration testing with mobile app
 ```
 
 ### Phase 3: Personalization & UX (Weeks 9-12) - Epic 3
@@ -333,7 +335,7 @@ LOG_LEVEL=debug
 □ Implement avatar selection/upload
 □ Add interest tags selection interface
 □ Create profile management screens
-□ Test profile creation flow
+□ Manual testing of profile creation flow
 ```
 
 #### Week 10: Theme Selection Interface
@@ -349,8 +351,8 @@ LOG_LEVEL=debug
 # Design Tasks
 □ Create theme illustrations and icons
 □ Optimize images for mobile performance
-□ Test theme selection UX with target users
-□ Validate accessibility compliance
+□ Manual testing of theme selection with colleagues
+□ Defer accessibility compliance to post-MVP
 ```
 
 #### Week 11: Three-Step Creation Flow
@@ -363,11 +365,11 @@ LOG_LEVEL=debug
 □ Create generation loading screen with progress
 □ Add error handling and retry logic
 
-# UX Tasks
-□ Test complete 3-step flow timing
-□ Validate cognitive load for tired parents
-□ Optimize for one-handed operation
-□ Test accessibility features
+# UX Manual Testing Tasks
+□ Manual testing of complete 3-step flow timing
+□ Manual validation of cognitive load with colleagues
+□ Manual optimization testing for one-handed operation
+□ Defer accessibility features testing to post-MVP
 ```
 
 #### Week 12: Personalization Integration
@@ -382,7 +384,7 @@ LOG_LEVEL=debug
 □ Create personalization form (step 3)
 □ Add auto-suggestions for Polish context
 □ Implement form validation and submission
-□ Test end-to-end personalized story generation
+□ Manual testing of end-to-end personalized story generation
 □ Optimize generation loading experience
 ```
 
@@ -402,7 +404,7 @@ LOG_LEVEL=debug
 □ Create saved story confirmation feedback
 □ Implement local storage for offline access
 □ Add storage usage indicators
-□ Test save/unsave functionality
+□ Manual testing of save/unsave functionality
 ```
 
 #### Week 14: Story Library Interface
@@ -415,11 +417,11 @@ LOG_LEVEL=debug
 □ Add recently accessed stories section
 □ Implement library navigation and organization
 
-# UX Tasks
-□ Test library browsing experience
-□ Optimize for large story collections
-□ Validate search and filter performance
-□ Test accessibility in library interface
+# UX Manual Testing Tasks
+□ Manual testing of library browsing experience
+□ Manual optimization for large story collections
+□ Manual validation of search and filter performance
+□ Defer accessibility testing to post-MVP
 ```
 
 #### Week 15: Offline Capabilities
@@ -435,7 +437,7 @@ LOG_LEVEL=debug
 □ Create sync endpoints for offline data
 □ Implement incremental sync optimization
 □ Add sync monitoring and error handling
-□ Test sync performance and reliability
+□ Manual testing of sync performance and reliability
 ```
 
 #### Week 16: Final Integration & Polish
@@ -447,12 +449,17 @@ LOG_LEVEL=debug
 □ Add story sharing capabilities
 □ Final UX polish and optimization
 
-# Quality Assurance
-□ Comprehensive end-to-end testing
-□ Performance testing and optimization
-□ Security testing and validation
-□ Accessibility compliance verification
-□ Prepare for App Store submission
+# Quality Assurance (MVP Level)
+□ Manual end-to-end testing with colleagues
+□ Backend security testing and validation
+□ Basic performance validation
+□ Prepare MVP demo for client presentation
+
+# Post-MVP Quality Assurance (Deferred)
+□ Comprehensive automated end-to-end testing
+□ Frontend performance testing and optimization
+□ Full accessibility compliance verification
+□ App Store submission preparation
 ```
 
 ## Development Best Practices
@@ -520,19 +527,33 @@ npm run dev:db:seed   # Seed database with test data
 ```bash
 # Backend Testing
 npm run test          # Unit tests
-npm run test:e2e      # End-to-end tests
+npm run test:e2e      # Backend API end-to-end tests
 npm run test:cov      # Coverage report
 
-# Mobile Testing
-npm run test          # Jest unit tests
-npm run test:detox    # E2E tests with Detox
+# Backend Coverage Requirements
+- Unit test coverage: > 80%
+- Integration test coverage: All API endpoints
+- Security testing and validation
+
+# Frontend Manual Testing
+- Basic functional testing by colleagues during development
+- User flow validation before client presentations
+- Manual smoke testing for critical features
+```
+
+### Post-MVP Testing (Deferred)
+```bash
+# Mobile Testing (Post-MVP Phase)
+npm run test          # Jest unit tests for mobile
+npm run test:detox    # Mobile E2E tests with Detox
 npm run test:ios      # iOS-specific tests
 npm run test:android  # Android-specific tests
 
-# Coverage Requirements
-- Unit test coverage: > 80%
-- E2E test coverage: Critical user paths
-- Integration test coverage: All API endpoints
+# Post-MVP Coverage Requirements
+- Frontend E2E test coverage: Critical user paths
+- Mobile platform-specific testing
+- Accessibility compliance verification
+- Performance testing and optimization
 ```
 
 ### Performance Monitoring

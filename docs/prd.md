@@ -127,13 +127,19 @@ Single repository containing both mobile app (React Native) and backend API (Nes
 
 This approach provides clear separation of concerns while maintaining simplicity for single-developer MVP workflow.
 
-### Testing Requirements
+### Testing Requirements (Updated)
 
-**Full Testing Pyramid:** Comprehensive testing strategy including:
-- **Unit Tests:** All business logic and utility functions (Jest/Vitest)
-- **Integration Tests:** API endpoints and module interactions (Supertest)
+**MVP Testing Strategy:** Accelerated development approach:
+- **Backend Unit Tests:** All business logic and utility functions (Jest)
+- **Backend Integration Tests:** API endpoints and module interactions (Supertest)
+- **Manual Testing:** Content safety validation and colleague feedback sessions
+- **Basic Manual Testing:** Critical user flow validation with development team
+
+**Post-MVP Testing (Deferred):**
+- **Frontend Unit Tests:** React Native component testing
 - **End-to-End Tests:** Critical user journeys using Detox for React Native
-- **Manual Testing:** Content safety validation and parent-child usability sessions
+- **Comprehensive Accessibility Testing:** WCAG AA compliance validation
+- **Parent-child usability sessions:** Full UX testing with target users
 
 ### Additional Technical Assumptions and Requests
 

@@ -10,7 +10,7 @@
 
 - **Package Management:** npm workspaces for monorepo dependency management
 - **Build System:** Metro bundler (React Native) and Node.js build process
-- **CI/CD:** GitHub Actions for automated testing and deployment
+- **CI/CD:** GitHub Actions for automated backend testing and deployment
 - **Code Quality:** ESLint, Prettier, and TypeScript strict mode for maintainable code
 
 **External Integrations:**

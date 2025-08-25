@@ -328,11 +328,16 @@ AppNavigator
 
 ## Accessibility Features
 
-### WCAG AA Compliance
-- **Screen Reader Support:** VoiceOver/TalkBack compatibility
+### MVP Phase Accessibility
+- **Basic Touch Targets:** Large touch targets (44px minimum)
+- **Basic Color Contrast:** Ensure readable text
+- **Simple Navigation:** Clear user flow design
+
+### Post-MVP Accessibility (Deferred)
+- **WCAG AA Compliance:** Full accessibility compliance
+- **Screen Reader Support:** VoiceOver/TalkBack compatibility  
 - **High Contrast:** Support for accessibility color schemes
 - **Large Text:** Dynamic type sizing support
-- **Motor Accessibility:** Large touch targets (44px minimum)
 - **Voice Control:** Support for voice navigation
 
 ### Internationalization
@@ -343,19 +348,27 @@ AppNavigator
 
 ## Testing Strategy
 
-### Unit Testing
+### Manual Testing (MVP Phase)
+- **Component Validation:** Manual testing of UI components
+- **User Flow Testing:** Manual validation of complete user journeys
+- **Cross-Platform Testing:** Basic manual testing on iOS and Android
+- **Colleague Testing:** Feedback-driven testing with development team
+
+### Post-MVP Testing Strategy (Deferred)
+
+#### Unit Testing (Post-MVP)
 - **Component Tests:** React Native Testing Library
 - **Hook Tests:** Custom hook testing
 - **Utility Tests:** Pure function testing
 - **Service Tests:** API client mocking
 
-### Integration Testing
+#### Integration Testing (Post-MVP)
 - **Flow Tests:** Complete user journey testing
 - **API Integration:** Mock server testing
 - **Navigation Tests:** Screen transition testing
 - **Offline Tests:** Sync functionality testing
 
-### E2E Testing
+#### E2E Testing (Post-MVP)
 - **Detox Framework:** Full app flow testing
 - **Device Testing:** iOS and Android compatibility
 - **Performance Testing:** Load time and responsiveness
