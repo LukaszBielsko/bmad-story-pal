@@ -1,15 +1,27 @@
 **Core Technology Stack:**
 
-- **Frontend:** React Native 0.72+ with TypeScript for cross-platform mobile development
+- **Frontend:** React Native 0.79.5 with React 19.0.0 and TypeScript for cross-platform mobile development
 - **Backend:** Single NestJS application with TypeScript and modular architecture
 - **Database:** PostgreSQL with Drizzle ORM for type-safe database operations and schema management
 - **Authentication:** Firebase Auth for secure user management and family account handling
 - **Cloud Infrastructure:** AWS with Polish data residency compliance (eu-central-1 region)
 
+**Mobile Development Stack:**
+
+- **Expo SDK:** 53.0.20 for development tooling and native capabilities
+- **Navigation:** Expo Router with file-based routing (replaces React Navigation)
+- **Styling:** NativeWind 2.0.11 with TailwindCSS 3.3.2 integration
+- **Fetching data:** React Query 5.83.0 for efficient data fetching and caching
+- **State Management:** Zustand 5.0.2 for simple, type-safe state management
+- **Animations:** React Native Reanimated 3.17.4 for smooth, performant animations
+- **Command Structure:** npm workspaces with `npm run dev:mobile` from root
+
 **Development and Deployment:**
 
 - **Package Management:** npm workspaces for monorepo dependency management
-- **Build System:** Metro bundler (React Native) and Node.js build process
+- **Build System:** Metro bundler (React Native) via Expo 53.0.20 and Node.js build process
+- **Mobile Navigation:** Expo Router with file-based routing and TypeScript support
+- **Security:** Expo Secure Store 14.1.4 for secure key storage
 - **CI/CD:** GitHub Actions for automated backend testing and deployment
 - **Code Quality:** ESLint, Prettier, and TypeScript strict mode for maintainable code
 

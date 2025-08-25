@@ -41,40 +41,43 @@ This project uses an npm workspace monorepo structure with React Native mobile a
     └── jest/                # Jest test configurations
 ```
 
-## Mobile App Structure (`apps/mobile/`)
+## Mobile App Structure (`apps/mobile/`) - Expo Router Architecture
 
 ```
-mobile/src/
-├── navigation/
-│   ├── AppNavigator.tsx          # Root navigation container
-│   ├── AuthNavigator.tsx         # Authentication flow
-│   ├── MainTabNavigator.tsx      # Main app tab navigation
-│   └── StoryFlowNavigator.tsx    # Story creation flow
-├── screens/
-│   ├── auth/
-│   │   ├── LoginScreen.tsx
-│   │   ├── RegisterScreen.tsx
-│   │   └── WelcomeScreen.tsx
-│   ├── story-creation/
-│   │   ├── ChildSelectionScreen.tsx    # Step 1: Select child
-│   │   ├── ThemeSelectionScreen.tsx    # Step 2: Choose theme
-│   │   ├── PersonalizationScreen.tsx   # Step 3: Add details
-│   │   └── GenerationScreen.tsx        # Loading & result
-│   ├── story-reading/
-│   │   ├── StoryReaderScreen.tsx       # Main reading interface
-│   │   └── StoryDetailsScreen.tsx      # Story metadata & actions
-│   ├── library/
-│   │   ├── StoryLibraryScreen.tsx      # Saved stories grid
-│   │   ├── FavoritesScreen.tsx         # Favorite stories
-│   │   └── SearchScreen.tsx            # Story search
-│   ├── profile/
-│   │   ├── UserProfileScreen.tsx       # User settings
-│   │   ├── ChildProfilesScreen.tsx     # Manage child profiles
-│   │   └── CreateChildScreen.tsx       # Add new child
-│   └── common/
-│       ├── LoadingScreen.tsx
-│       ├── ErrorScreen.tsx
-│       └── OfflineScreen.tsx
+mobile/app/                           # Expo Router file-based routing
+├── _layout.tsx                       # Root app layout
+├── welcome.tsx                       # Welcome/landing screen
+├── (auth)/                          # Authentication flow group
+│   ├── _layout.tsx                  # Auth navigation layout
+│   ├── sign-in.tsx                  # Sign in screen
+│   └── register.tsx                 # Registration screen
+├── (main)/                          # Main authenticated app group
+│   ├── _layout.tsx                  # Main app layout
+│   └── (tabs)/                      # Tab navigation group
+│       ├── _layout.tsx              # Tab configuration
+│       ├── index.tsx                # Home/dashboard
+│       ├── library.tsx              # Story library
+│       ├── create.tsx               # Story creation
+│       └── profile.tsx              # User profile
+├── story/                           # Story-related screens
+│   ├── [id].tsx                     # Story reading screen (dynamic route)
+│   ├── create/                      # Story creation flow
+│   │   ├── child-selection.tsx      # Step 1: Select child
+│   │   ├── theme-selection.tsx      # Step 2: Choose theme
+│   │   ├── personalization.tsx      # Step 3: Add details
+│   │   └── generation.tsx           # Loading & result
+│   └── details/
+│       └── [id].tsx                 # Story metadata & actions
+├── profile/                         # Profile management
+│   ├── child-profiles.tsx           # Manage child profiles
+│   └── create-child.tsx             # Add new child
+└── common/                          # Common screens
+    ├── loading.tsx                  # Loading screen
+    ├── error.tsx                    # Error screen  
+    └── offline.tsx                  # Offline screen
+
+mobile/src/                           # Source code (non-routing)
+├── screens/                         # Legacy screen components (if needed)
 ├── components/
 │   ├── common/
 │   │   ├── Button.tsx                  # Primary app button
@@ -360,14 +363,14 @@ tools/
 
 ## Import Path Aliases
 
-### Mobile App (`apps/mobile/`)
+### Mobile App (`apps/mobile/`) - Expo Router
 
 ```typescript
 "@/components/*": ["src/components/*"]
-"@/screens/*": ["src/screens/*"]
 "@/services/*": ["src/services/*"]
 "@/utils/*": ["src/utils/*"]
 "@/types/*": ["src/types/*"]
+"@/app/*": ["app/*"]                    # Expo Router screens
 ```
 
 ### Backend API (`apps/api/`)
