@@ -1,5 +1,5 @@
 {
-  "name": "@storymagic/api",
+  "name": "api",
   "version": "1.0.0",
   "description": "StoryMagic Backend API - NestJS application for story generation and management",
   "author": "StoryMagic Team",

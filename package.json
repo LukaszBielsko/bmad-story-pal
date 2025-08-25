@@ -9,14 +9,14 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:mobile\" \"npm run dev:api\"",
-    "dev:mobile": "npm run start --workspace=@storymagic/mobile",
-    "dev:api": "npm run start:dev --workspace=@storymagic/api",
+    "dev:mobile": "npm run start --workspace=mobile",
+    "dev:api": "npm run start:dev --workspace=api",
     "build": "npm run build --workspaces",
-    "build:mobile": "npm run build --workspace=@storymagic/mobile",
-    "build:api": "npm run build --workspace=@storymagic/api",
+    "build:mobile": "npm run build --workspace=mobile",
+    "build:api": "npm run build --workspace=api",
     "test": "npm run test --workspaces",
-    "test:mobile": "npm run test --workspace=@storymagic/mobile",
-    "test:api": "npm run test --workspace=@storymagic/api",
+    "test:mobile": "npm run test --workspace=mobile",
+    "test:api": "npm run test --workspace=api",
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
@@ -38,7 +38,7 @@
     "typescript": "^5.1.6"
   },
   "engines": {
-    "node": "22.11.0",
+    "node": "20.19.4",
     "npm": ">=9.0.0"
   }
 }
