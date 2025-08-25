@@ -67,4 +67,5 @@ apps/api/.env
 *.bak
 *.orig
 
-
+# Other generated content
+.other/
